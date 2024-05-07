@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 //middleware
 const app = express();
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
   return res.json({ status: true });
 });
 app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
 
 mongoose
   .connect(process.env.MONGO_URL)
