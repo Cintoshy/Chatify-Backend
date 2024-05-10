@@ -7,6 +7,8 @@ const messageSchema = new mongoose.Schema({
   readByRecipients: [
     { type: mongoose.Schema.Types.ObjectId, ref: "ReadByRecipient" },
   ],
+  replyTo: { type: mongoose.Schema.Types.ObjectId },
+  isSeen: { type: Boolean, default: false },
   timestamp: { type: Date, default: Date.now },
 });
 
