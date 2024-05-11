@@ -5,10 +5,6 @@ exports.getChannel = async (req, res) => {
   try {
     const channelList = await Channels.find().populate({
       path: "lastMessage",
-      populate: {
-        path: "sender",
-        select: "name email",
-      },
     });
 
     if (!channelList) {
