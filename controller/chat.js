@@ -3,10 +3,10 @@ const Messages = require("../model/messageModel");
 
 exports.getChannel = async (req, res) => {
   try {
-    const channelList = await Channels.find().populate({
-      path: "lastMessage",
-    });
-
+    const channelList = await Channels.find().populate([
+      { path: "lastMessage" },
+      { path: "members", select: "name email" },
+    ]);
     if (!channelList) {
       return res.status(404).json({ message: "Channel not found" });
     }
