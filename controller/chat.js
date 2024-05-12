@@ -45,11 +45,11 @@ exports.getChannel = async (req, res) => {
 
 exports.getMessage = async (req, res) => {
   try {
-    // const userId = req.params.id;
-    const messages = await Messages.find();
+    const conversationId = req.params.id;
+    const messages = await Messages.find({channel: conversationId});
 
     if (!messages) {
-      return res.status(404).json({ message: "Channel not found" });
+      return res.status(404).json({ message: "Conversation not found" });
     }
 
     res.status(200).json(messages);
