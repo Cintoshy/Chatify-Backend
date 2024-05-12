@@ -14,7 +14,21 @@ exports.getUser = async (req, res) => {
     const userData = await Users.find();
 
     if (!userData) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Users not found" });
+    }
+
+    res.status(200).json(userData);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+exports.getSuggestedUser = async (req, res) => {
+  try {
+    // const userId = req.params.id;
+    const userData = await Users.find().select("name");
+
+    if (!userData) {
+      return res.status(404).json({ message: "Users not found" });
     }
 
     res.status(200).json(userData);
