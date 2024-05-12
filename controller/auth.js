@@ -2,10 +2,6 @@ const Users = require("../model/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// const handleErrors = (err, res) => {
-//   console.error(err);
-//   res.status(500).json({ error: err.message });
-// };
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -39,7 +35,7 @@ exports.login = async (req, res) => {
     });
 
     // Return a success response with the token
-    res.json({ message: "Login successful", status:"OK", token });
+    res.json({ message: "Login successful", status: "OK", token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });

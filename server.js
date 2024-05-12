@@ -6,7 +6,7 @@ const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
-const chatRoutes = require("./routes/chatRoutes");
+const channekRoutes = require("./routes/channelRoutes");
 
 //middleware
 const app = express();
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 });
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
-app.use("/channels", chatRoutes);
+app.use("/channels", channekRoutes);
 
 mongoose
   .connect(process.env.MONGO_URL)
