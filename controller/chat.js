@@ -45,12 +45,18 @@ exports.getChannel = async (req, res) => {
 
 exports.getMessage = async (req, res) => {
   try {
-    const conversationId = req.params.id;
-    const messages = await Messages.find({channel: conversationId});
+    const { firstId, secondId } = req.params;
 
-    if (!messages) {
-      return res.status(404).json({ message: "Conversation not found" });
+    const memberChannel = await Channels.findOne({
+      members: { $all: [firstId, secondId] },
+    });
+
+    if (!memberChannel) {
+      return res.status(404).json({ message: "Fresh Channel" });
     }
+
+    const channelId = memberChannel._id.toString();
+    const messages = await Messages.find({ channel: channelId });
 
     res.status(200).json(messages);
   } catch (err) {
