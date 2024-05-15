@@ -29,6 +29,32 @@ exports.getChannel = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+exports.getMessage = async (req, res) => {
+  try {
+    const { firstId, secondId } = req.params;
+
+    const memberChannel = await Channels.findOne({
+      $and: [
+        { members: firstId },
+        { members: secondId },
+        { members: { $not: { $elemMatch: { $nin: [firstId, secondId] } } } },
+      ],
+    });
+
+    if (!memberChannel) {
+      return res.json({ message: "Fresh Channel" });
+    }
+
+    const channelId = memberChannel;
+    const messages = await Messages.find({ channel: channelId });
+
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // exports.getChannel = async (req, res) => {
 //   const { firstId, secondId } = req.params;
 //   try {
@@ -42,24 +68,3 @@ exports.getChannel = async (req, res) => {
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // };
-
-exports.getMessage = async (req, res) => {
-  try {
-    const { firstId, secondId } = req.params;
-
-    const memberChannel = await Channels.findOne({
-      members: { $all: [firstId, secondId] },
-    });
-
-    if (!memberChannel) {
-      return res.status(404).json({ message: "Fresh Channel" });
-    }
-
-    const channelId = memberChannel._id.toString();
-    const messages = await Messages.find({ channel: channelId });
-
-    res.status(200).json(messages);
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
