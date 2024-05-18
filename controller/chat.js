@@ -1,6 +1,8 @@
 const Channels = require("../model/channelModel");
 const Messages = require("../model/messageModel");
 
+//no prgress for now
+
 exports.getChannel = async (req, res) => {
   const memberId = req.params.id;
   try {
