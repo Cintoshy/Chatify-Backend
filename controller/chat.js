@@ -1,10 +1,11 @@
-const Channels = require("../model/channelModel");
-const Messages = require("../model/messageModel");
+const Channel = require("../model/channelModel");
+const Message = require("../model/messageModel");
 
+//get all channel
 exports.getChannel = async (req, res) => {
   const memberId = req.params.id;
   try {
-    const channelList = await Channels.find({
+    const channelList = await Channel.find({
       members: { $in: [memberId] },
     }).populate([
       {
@@ -30,11 +31,12 @@ exports.getChannel = async (req, res) => {
   }
 };
 
+//get all messages by channel
 exports.getMessage = async (req, res) => {
   try {
     const { firstId, secondId } = req.params;
 
-    const memberChannel = await Channels.findOne({
+    const memberChannel = await Channel.findOne({
       $and: [
         { members: firstId },
         { members: secondId },
@@ -43,28 +45,98 @@ exports.getMessage = async (req, res) => {
     });
 
     if (!memberChannel) {
-      return res.json({ message: "Fresh Channel" });
+      return res.json([{ message: "Fresh Channel" }]);
     }
 
     const channelId = memberChannel;
-    const messages = await Messages.find({ channel: channelId });
+    const messages = await Message.find({ channel: channelId });
 
     res.status(200).json(messages);
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+const createChannel = async (firstId, secondId) => {
+  try {
+    const newChannel = await new Promise((resolve) => {
+      setTimeout(() => {
+        const channel = new Channel({
+          name: "DM",
+          members: [firstId, secondId],
+        });
+        resolve(channel);
+      }, 1000);
+    });
 
-// exports.getChannel = async (req, res) => {
-//   const { firstId, secondId } = req.params;
+    const savedChannel = await newChannel.save();
+
+    res.status(201).json(savedChannel);
+  } catch (error) {
+    console.error("Error creating channel:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the channel" });
+  }
+};
+
+// exports.sendMessage = async (req, res) => {
 //   try {
-//     const channelList = await Channels.findOne({
-//       members: { $all: [firstId, secondId] },
-//     });
-//     console.log(channelList);
+//     const { firstId, secondId, content } = req.body;
+//     const newChannel = await createChannel(firstId, secondId);
 
-//     res.status(200).json(channelList);
+//     const newMessage = new Message({
+//       channel: newChannel.id,
+//       conversation: [
+//         {
+//           sender: firstId,
+//           content: content,
+//         },
+//       ],
+//     });
+//     await newMessage.save();
+
+//     res.status(201).json({ status: "Message Sent", message: newMessage });
 //   } catch (err) {
-//     res.status(500).json({ error: "Internal server error" });
+//     handleErrors(res, err);
 //   }
 // };
+
+exports.sendMessage = async (req, res) => {
+  try {
+    const { conversationId, firstId, secondId, content } = req.body;
+
+    let channel;
+    // If conversationId is provided, find the existing channel
+    if (conversationId) {
+      channel = await Channel.findById(conversationId);
+      if (!channel) {
+        return res.status(404).json({ error: "Channel not found" });
+      }
+    } else {
+      // Create a new channel if conversationId is not provided
+      console.log("onversationId is not provided");
+      channel = await createChannel(firstId, secondId);
+    }
+
+    // Create a new message
+    const newMessage = new Message({
+      channel: channel._id,
+      conversation: [
+        {
+          sender: firstId,
+          content: content,
+        },
+      ],
+    });
+
+    // Save the new message to the database
+    await newMessage.save();
+
+    res.status(201).json({ status: "Message Sent", message: newMessage });
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while sending the message" });
+  }
+};
