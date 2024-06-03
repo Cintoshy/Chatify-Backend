@@ -3,7 +3,12 @@ const mongoose = require("mongoose");
 const channelSchema = new mongoose.Schema({
   name: { type: String, required: true },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
+  lastMessage: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Message",
+    default: null,
+  },
 });
 
 module.exports = mongoose.model("Channel", channelSchema);
+  
