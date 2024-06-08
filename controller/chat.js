@@ -63,43 +63,19 @@ const createChannel = async (firstId, secondId) => {
         const channel = new Channel({
           name: "DM",
           members: [firstId, secondId],
+          lastMessage: null,
         });
         resolve(channel);
       }, 1000);
     });
 
     const savedChannel = await newChannel.save();
-
-    res.status(201).json(savedChannel);
+    return savedChannel;
+    // res.status(201).json(savedChannel);
   } catch (error) {
     console.error("Error creating channel:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the channel" });
   }
 };
-
-// exports.sendMessage = async (req, res) => {
-//   try {
-//     const { firstId, secondId, content } = req.body;
-//     const newChannel = await createChannel(firstId, secondId);
-
-//     const newMessage = new Message({
-//       channel: newChannel.id,
-//       conversation: [
-//         {
-//           sender: firstId,
-//           content: content,
-//         },
-//       ],
-//     });
-//     await newMessage.save();
-
-//     res.status(201).json({ status: "Message Sent", message: newMessage });
-//   } catch (err) {
-//     handleErrors(res, err);
-//   }
-// };
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -114,7 +90,7 @@ exports.sendMessage = async (req, res) => {
       }
     } else {
       // Create a new channel if conversationId is not provided
-      console.log("onversationId is not provided");
+
       channel = await createChannel(firstId, secondId);
     }
 
@@ -132,6 +108,10 @@ exports.sendMessage = async (req, res) => {
     // Save the new message to the database
     await newMessage.save();
 
+    if (channel.lastMessage === null) {
+      channel.lastMessage = newMessage._id;
+      await channel.save();
+    }
     res.status(201).json({ status: "Message Sent", message: newMessage });
   } catch (err) {
     console.error("Error sending message:", err);

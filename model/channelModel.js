@@ -6,9 +6,7 @@ const channelSchema = new mongoose.Schema({
   lastMessage: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Message",
-    default: null,
   },
 });
 
 module.exports = mongoose.model("Channel", channelSchema);
-  
